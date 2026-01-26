@@ -62,6 +62,27 @@ export const openApiDocument = {
           massGrams: { type: ["number", "null"] }
         }
       },
+      StatusResponse: {
+        type: "object",
+        properties: {
+          machineStatus: { type: ["string", "null"] },
+          doses: {
+            type: ["object", "null"],
+            properties: {
+              dose1: { type: ["number", "null"] },
+              dose2: { type: ["number", "null"] }
+            }
+          },
+          scale: {
+            type: ["object", "null"],
+            properties: {
+              connected: { type: ["boolean", "null"] },
+              batteryLevel: { type: ["number", "null"] }
+            }
+          },
+          imageUrl: { type: ["string", "null"] }
+        }
+      },
       ErrorResponse: {
         type: "object",
         required: ["error"],
@@ -81,6 +102,29 @@ export const openApiDocument = {
             content: {
               "application/json": {
                 schema: { $ref: "#/components/schemas/StatsResponse" }
+              }
+            }
+          },
+          "500": {
+            description: "Server error",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status": {
+      get: {
+        summary: "Fetch machine status widgets",
+        responses: {
+          "200": {
+            description: "Status payload",
+            content: {
+              "application/json": {
+                schema: { $ref: "#/components/schemas/StatusResponse" }
               }
             }
           },

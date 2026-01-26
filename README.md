@@ -5,6 +5,7 @@ A Cloudflare Worker (TypeScript) that logs into the La Marzocco cloud API, cache
 ## Endpoints
 
 - `GET /stats` — stats payload
+- `GET /status` — machine status dashboard widgets
 - `GET /openapi.json` — OpenAPI 3.0 document (when enabled)
 - `GET /docs` — Swagger UI (when enabled)
 
@@ -14,6 +15,12 @@ A Cloudflare Worker (TypeScript) that logs into the La Marzocco cloud API, cache
 - Total coffees and total flushes (all‑time)
 - Recent espresso stats (latest 15: timestamp, extraction seconds, mass)
 - Period totals for coffees and flushes: 7, 30, 60, 90, and 365 days
+
+`GET /status` returns JSON with:
+- Machine status
+- Brew‑by‑weight doses (dose1/dose2)
+- Scale battery + connected status (if a scale is linked)
+- Machine image URL (from `coffeeStation.coffeeMachine.imageUrlDetail`)
 
 Counts are derived strictly from La Marzocco API responses. No local database is used.
 
@@ -91,3 +98,4 @@ npm run deploy
 - “Backflush” values are based on the API’s flush counters/trend data; if the API doesn’t provide flush events, related fields will be `null` or `0`.
 - Timestamps are returned in ISO‑8601 (UTC).
 - `/docs` and `/openapi.json` are only exposed when `ENABLE_SWAGGER=true`.
+- Machine status values: `StandBy`, `PoweredOn`, `Brewing`, `Off`.

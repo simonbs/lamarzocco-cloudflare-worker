@@ -4,6 +4,7 @@ import { buildOptionsResponse } from "./middleware/cors"
 import { requireSwaggerEnabled } from "./middleware/swagger"
 import { handleOpenApi, handleSwaggerUi } from "./routes/docs"
 import { handleStats } from "./routes/stats"
+import { handleStatus } from "./routes/status"
 import { jsonResponse } from "./utils/http"
 
 const app = new Hono<{ Bindings: Env }>()
@@ -11,6 +12,7 @@ const app = new Hono<{ Bindings: Env }>()
 app.options("*", () => buildOptionsResponse())
 
 app.get("/stats", (context) => handleStats(context))
+app.get("/status", (context) => handleStatus(context))
 
 app.get("/openapi.json", requireSwaggerEnabled, (context) => handleOpenApi(context))
 app.get("/docs", requireSwaggerEnabled, () => handleSwaggerUi())
