@@ -72,7 +72,7 @@ Required:
 
 Optional:
 - `ENABLE_SWAGGER` – `true` to expose `/openapi.json` and `/docs` (default `false`)
-- `LM_MACHINE_ID` – serial number (required if your account has multiple machines)
+- `LM_MACHINE_ID` – serial number (optional; if you have exactly one machine, it will be auto-selected; if you have multiple machines, requests will fail until this is set)
 - `LM_TIMEZONE` – IANA timezone (default `UTC`)
 - `LM_WEEK_START` – `sunday` or `monday` (default `monday`)
 - `LM_LAST_COFFEE_DAYS` – days to query for last espresso list (default `365`)
@@ -92,3 +92,4 @@ npm run deploy
 - The worker caches the installation key material and auth tokens in KV.
 - “Backflush” values are based on the API’s flush counters/trend data; if the API doesn’t provide flush events, related fields will be `null` or `0`.
 - Timestamps are returned in ISO‑8601 (UTC).
+- `/docs` and `/openapi.json` are only exposed when `ENABLE_SWAGGER=true`.
