@@ -3,11 +3,10 @@ export interface Env {
   LM_PASSWORD: string
   LM_TIMEZONE?: string
   LM_MACHINE_ID?: string
-  LM_WEEK_START?: string
   LM_LAST_COFFEE_DAYS?: string
   LM_INSTALLATION_ID?: string
   LM_API_BASE?: string
-  LM_KV: KVNamespace
+  KV: KVNamespace
   ENABLE_SWAGGER?: string
 }
 
@@ -15,21 +14,13 @@ export function assertRequiredEnv(env: Env): void {
   if (!env.LM_EMAIL || !env.LM_PASSWORD) {
     throw new Error("Missing LM_EMAIL or LM_PASSWORD environment variables.")
   }
-  if (!env.LM_KV) {
-    throw new Error("Missing LM_KV binding.")
+  if (!env.KV) {
+    throw new Error("Missing KV binding.")
   }
 }
 
 export function getTimezone(env: Env): string {
   return env.LM_TIMEZONE?.trim() || "UTC"
-}
-
-export function getWeekStart(env: Env): "sunday" | "monday" {
-  const raw = env.LM_WEEK_START?.trim().toLowerCase()
-  if (raw === "sunday") {
-    return "sunday"
-  }
-  return "monday"
 }
 
 export function getLastCoffeeDays(env: Env): number {

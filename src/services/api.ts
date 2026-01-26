@@ -4,7 +4,11 @@ import type { InstallationKeyData } from "./types"
 import { buildSignedHeaders } from "./crypto"
 import { clearTokenCache, getAccessToken } from "./auth"
 
-export async function apiGet(env: Env, key: InstallationKeyData, path: string): Promise<any> {
+export async function apiGet<T = unknown>(
+  env: Env,
+  key: InstallationKeyData,
+  path: string
+): Promise<T> {
   const token = await getAccessToken(env, key)
   const headers = await buildSignedHeaders(key)
   headers.Authorization = `Bearer ${token}`
@@ -30,5 +34,5 @@ export async function apiGet(env: Env, key: InstallationKeyData, path: string): 
     throw new Error(`API request failed (${response.status}): ${text}`)
   }
 
-  return response.json()
+  return (await response.json()) as T
 }

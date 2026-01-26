@@ -11,10 +11,9 @@ A Cloudflare Worker (TypeScript) that logs into the La Marzocco cloud API, cache
 ## What it returns
 
 `GET /stats` returns JSON with:
-- Espresso counts: all‑time, this year, this month, this week, today
-- Backflush counts: all‑time, this year, this month, this week, today
-- Most recent espresso timestamp
-- Most recent backflush timestamp (if provided by API trend data)
+- Total coffees and total flushes (all‑time)
+- Recent espresso stats (latest 15: timestamp, extraction seconds, mass)
+- Period totals for coffees and flushes: 7, 30, 60, 90, and 365 days
 
 Counts are derived strictly from La Marzocco API responses. No local database is used.
 
@@ -49,14 +48,14 @@ HTTP GET /stats
 
 ## Setup
 
-1. Create a KV namespace:
+1. Create a KV namespace (wrangler v4+):
 
 ```bash
-wrangler kv:namespace create LM_KV
-wrangler kv:namespace create LM_KV --preview
+wrangler kv namespace create lamarzocco
+wrangler kv namespace create lamarzocco --preview
 ```
 
-2. Update `wrangler.toml` with the KV ids.
+2. Update `wrangler.toml` with the KV ids (binding is `KV`; you can reuse the same id for `preview_id` during development).
 
 3. Set environment variables:
 
@@ -74,7 +73,6 @@ Optional:
 - `ENABLE_SWAGGER` – `true` to expose `/openapi.json` and `/docs` (default `false`)
 - `LM_MACHINE_ID` – serial number (optional; if you have exactly one machine, it will be auto-selected; if you have multiple machines, requests will fail until this is set)
 - `LM_TIMEZONE` – IANA timezone (default `UTC`)
-- `LM_WEEK_START` – `sunday` or `monday` (default `monday`)
 - `LM_LAST_COFFEE_DAYS` – days to query for last espresso list (default `365`)
 - `LM_INSTALLATION_ID` – fixed installation id; if omitted, one is generated and stored in KV
 - `LM_API_BASE` – override API base (default `https://lion.lamarzocco.io/api/customer-app`)

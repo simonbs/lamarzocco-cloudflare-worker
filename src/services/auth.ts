@@ -11,7 +11,7 @@ const TOKEN_STORAGE = "tokens"
 export async function getAccessToken(env: Env, key: InstallationKeyData): Promise<string> {
   await ensureClientRegistered(env, key)
 
-  const existing = await env.LM_KV.get<TokenData>(TOKEN_STORAGE, "json")
+  const existing = await env.KV.get<TokenData>(TOKEN_STORAGE, "json")
   if (existing && existing.expiresAt - TOKEN_REFRESH_WINDOW_MS > Date.now()) {
     return existing.accessToken
   }
@@ -19,7 +19,7 @@ export async function getAccessToken(env: Env, key: InstallationKeyData): Promis
   if (existing?.refreshToken) {
     try {
       const refreshed = await refreshToken(env, key, existing.refreshToken)
-      await env.LM_KV.put(TOKEN_STORAGE, JSON.stringify(refreshed))
+      await env.KV.put(TOKEN_STORAGE, JSON.stringify(refreshed))
       return refreshed.accessToken
     } catch (error) {
       console.warn("Refresh token failed, falling back to sign-in.", error)
@@ -27,7 +27,7 @@ export async function getAccessToken(env: Env, key: InstallationKeyData): Promis
   }
 
   const signedIn = await signIn(env, key)
-  await env.LM_KV.put(TOKEN_STORAGE, JSON.stringify(signedIn))
+  await env.KV.put(TOKEN_STORAGE, JSON.stringify(signedIn))
   return signedIn.accessToken
 }
 
@@ -92,5 +92,5 @@ async function refreshToken(
 }
 
 export async function clearTokenCache(env: Env): Promise<void> {
-  await env.LM_KV.delete(TOKEN_STORAGE)
+  await env.KV.delete(TOKEN_STORAGE)
 }

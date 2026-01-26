@@ -27,25 +27,3 @@ export function createDatePartsExtractor(timeZone: string): (date: Date) => Date
 export function dateOrdinal(parts: DateParts): number {
   return Date.UTC(parts.year, parts.month - 1, parts.day)
 }
-
-export function getWeekStart(parts: DateParts, weekStart: "sunday" | "monday"): DateParts {
-  const weekdayIndex = new Date(Date.UTC(parts.year, parts.month - 1, parts.day)).getUTCDay()
-  const weekStartIndex = weekStart === "monday" ? 1 : 0
-  const diff = (weekdayIndex - weekStartIndex + 7) % 7
-  return addDays(parts, -diff)
-}
-
-export function addDays(parts: DateParts, delta: number): DateParts {
-  const date = new Date(Date.UTC(parts.year, parts.month - 1, parts.day + delta))
-  return {
-    year: date.getUTCFullYear(),
-    month: date.getUTCMonth() + 1,
-    day: date.getUTCDate()
-  }
-}
-
-export function daysSinceYearStart(parts: DateParts): number {
-  const yearStart = Date.UTC(parts.year, 0, 1)
-  const today = Date.UTC(parts.year, parts.month - 1, parts.day)
-  return Math.floor((today - yearStart) / 86_400_000) + 1
-}

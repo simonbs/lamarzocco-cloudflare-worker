@@ -7,7 +7,7 @@ export function handleOpenApi(context: AppContext): Response {
   return withCors(response)
 }
 
-export function handleSwaggerUi(_context: AppContext): Response {
+export function handleSwaggerUi(): Response {
   const html = `<!doctype html>
 <html lang="en">
   <head>

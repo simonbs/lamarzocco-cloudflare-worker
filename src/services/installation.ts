@@ -13,7 +13,7 @@ const INSTALLATION_KEY_STORAGE = "installation_key"
 const CLIENT_REGISTERED_STORAGE = "client_registered"
 
 export async function loadInstallationKey(env: Env): Promise<InstallationKeyData> {
-  const existing = await env.LM_KV.get<InstallationKeyData>(INSTALLATION_KEY_STORAGE, "json")
+  const existing = await env.KV.get<InstallationKeyData>(INSTALLATION_KEY_STORAGE, "json")
   if (existing) {
     const requestedId = getInstallationId(env)
     if (requestedId && existing.installationId !== requestedId) {
@@ -45,12 +45,12 @@ export async function loadInstallationKey(env: Env): Promise<InstallationKeyData
     publicKeyB64
   }
 
-  await env.LM_KV.put(INSTALLATION_KEY_STORAGE, JSON.stringify(installationKey))
+  await env.KV.put(INSTALLATION_KEY_STORAGE, JSON.stringify(installationKey))
   return installationKey
 }
 
 export async function ensureClientRegistered(env: Env, key: InstallationKeyData): Promise<void> {
-  const registered = await env.LM_KV.get(CLIENT_REGISTERED_STORAGE)
+  const registered = await env.KV.get(CLIENT_REGISTERED_STORAGE)
   if (registered === "true") return
 
   const pubBytes = base64ToBytes(key.publicKeyB64)
@@ -69,7 +69,7 @@ export async function ensureClientRegistered(env: Env, key: InstallationKeyData)
   })
 
   if (res.ok) {
-    await env.LM_KV.put(CLIENT_REGISTERED_STORAGE, "true")
+    await env.KV.put(CLIENT_REGISTERED_STORAGE, "true")
     return
   }
 

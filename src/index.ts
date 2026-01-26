@@ -13,7 +13,7 @@ app.options("*", () => buildOptionsResponse())
 app.get("/stats", (context) => handleStats(context))
 
 app.get("/openapi.json", requireSwaggerEnabled, (context) => handleOpenApi(context))
-app.get("/docs", requireSwaggerEnabled, (context) => handleSwaggerUi(context))
+app.get("/docs", requireSwaggerEnabled, () => handleSwaggerUi())
 
 app.notFound((context) => jsonResponse(context, 404, { error: "Not found" }))
 

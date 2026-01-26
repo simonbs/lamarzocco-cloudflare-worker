@@ -14,48 +14,52 @@ export const openApiDocument = {
     schemas: {
       StatsResponse: {
         type: "object",
-        required: ["counts", "last"],
+        required: ["totals", "periodTotals", "recentEspressos"],
         properties: {
-          counts: {
+          totals: {
             type: "object",
-            required: ["espresso", "backflush"],
+            required: ["coffees", "flushes"],
             properties: {
-              espresso: {
-                type: "object",
-                required: ["allTime", "year", "month", "week", "today"],
-                properties: {
-                  allTime: { type: ["integer", "null"] },
-                  year: { type: "integer" },
-                  month: { type: "integer" },
-                  week: { type: "integer" },
-                  today: { type: "integer" }
-                }
-              },
-              backflush: {
-                type: "object",
-                required: ["allTime", "year", "month", "week", "today"],
-                properties: {
-                  allTime: { type: ["integer", "null"] },
-                  year: { type: "integer" },
-                  month: { type: "integer" },
-                  week: { type: "integer" },
-                  today: { type: "integer" }
-                }
-              }
+              coffees: { type: ["integer", "null"] },
+              flushes: { type: ["integer", "null"] }
             }
           },
-          last: {
+          periodTotals: {
             type: "object",
-            required: ["espresso", "backflush"],
             properties: {
-              espresso: { type: ["string", "null"], format: "date-time" },
-              backflush: { type: ["string", "null"], format: "date-time" }
-            }
+              days7: { $ref: "#/components/schemas/PeriodTotals" },
+              days30: { $ref: "#/components/schemas/PeriodTotals" },
+              days60: { $ref: "#/components/schemas/PeriodTotals" },
+              days90: { $ref: "#/components/schemas/PeriodTotals" },
+              days365: { $ref: "#/components/schemas/PeriodTotals" }
+            },
+            required: ["days7", "days30", "days60", "days90", "days365"]
+          },
+          recentEspressos: {
+            type: "array",
+            items: { $ref: "#/components/schemas/RecentEspresso" }
           },
           notes: {
             type: ["array", "null"],
             items: { type: "string" }
           }
+        }
+      },
+      PeriodTotals: {
+        type: "object",
+        required: ["coffees", "flushes"],
+        properties: {
+          coffees: { type: "integer" },
+          flushes: { type: "integer" }
+        }
+      },
+      RecentEspresso: {
+        type: "object",
+        required: ["timestamp", "extractionSeconds", "massGrams"],
+        properties: {
+          timestamp: { type: "string", format: "date-time" },
+          extractionSeconds: { type: ["number", "null"] },
+          massGrams: { type: ["number", "null"] }
         }
       },
       ErrorResponse: {
