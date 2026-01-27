@@ -64,6 +64,14 @@ describe("fetchStatsForMachine", () => {
           ]
         }
       })
+      .mockResolvedValueOnce({
+        widgets: [
+          {
+            code: "CMBackFlush",
+            output: { lastCleaningStartTime: todayMs }
+          }
+        ]
+      })
 
     const result = await fetchStatsForMachine(env, key, "SERIAL")
 
@@ -77,6 +85,7 @@ describe("fetchStatsForMachine", () => {
     const first = result.recentEspressos[0] as { timestamp: string; massGrams: number | null }
     expect(first.massGrams).toBe(18)
     expect(first.timestamp).toBe(new Date(todayMs).toISOString())
+    expect(result.lastBackflush).toBe(new Date(todayMs).toISOString())
 
     expect(result.notes).toBeUndefined()
   })
@@ -89,6 +98,14 @@ describe("fetchStatsForMachine", () => {
       .mockResolvedValueOnce({ output: { totalCoffee: 1, totalFlush: 0 } })
       .mockResolvedValueOnce({ output: { coffees: [] } })
       .mockResolvedValueOnce({ output: { last_coffees: [] } })
+      .mockResolvedValueOnce({
+        widgets: [
+          {
+            code: "CMBackFlush",
+            output: { lastCleaningStartTime: Date.UTC(2024, 0, 1, 12, 0, 0) }
+          }
+        ]
+      })
 
     const result = await fetchStatsForMachine(env, key, "SERIAL")
 
