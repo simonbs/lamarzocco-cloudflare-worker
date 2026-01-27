@@ -6,6 +6,7 @@ import { createDatePartsExtractor, dateOrdinal } from "./dates"
 
 const PERIOD_WINDOWS = [7, 30, 60, 90, 365]
 const DAY_MS = 86_400_000
+const HOURS_24_MS = 24 * 60 * 60 * 1000
 const BACKFLUSH_WIDGET_CODE = "CMBackFlush"
 
 export async function fetchStatsForMachine(
@@ -40,8 +41,9 @@ export async function fetchStatsForMachine(
 
   const { coffees, flushes } = extractTrendEvents(trendOutput)
   const dateParts = createDatePartsExtractor(timezone)
-  const nowParts = dateParts(new Date())
-  const periodTotals = buildPeriodTotals(coffees, flushes, nowParts, dateParts)
+  const now = new Date()
+  const nowParts = dateParts(now)
+  const periodTotals = buildPeriodTotals(coffees, flushes, nowParts, now.getTime(), dateParts)
 
   const recentEspressos = extractRecentEspressos(lastCoffeeOutput, 15)
   const backflushWidget = findWidgetOutput(dashboardOutput, BACKFLUSH_WIDGET_CODE)
@@ -146,9 +148,14 @@ function buildPeriodTotals(
   coffees: TrendEvent[],
   flushes: TrendEvent[],
   nowParts: { year: number; month: number; day: number },
+  nowMs: number,
   dateParts: (date: Date) => { year: number; month: number; day: number }
 ): Record<string, { coffees: number; flushes: number }> {
   const totals: Record<string, { coffees: number; flushes: number }> = {}
+  totals.hours24 = {
+    coffees: sumEventsWithinMs(coffees, nowMs - HOURS_24_MS, nowMs),
+    flushes: sumEventsWithinMs(flushes, nowMs - HOURS_24_MS, nowMs)
+  }
   for (const days of PERIOD_WINDOWS) {
     totals[`days${days}`] = {
       coffees: sumEventsWithinDays(coffees, nowParts, dateParts, days),
@@ -156,6 +163,17 @@ function buildPeriodTotals(
     }
   }
   return totals
+}
+
+function sumEventsWithinMs(events: TrendEvent[], startMs: number, endMs: number): number {
+  if (events.length === 0) return 0
+  let total = 0
+  for (const event of events) {
+    if (event.timestampMs >= startMs && event.timestampMs <= endMs) {
+      total += event.value
+    }
+  }
+  return total
 }
 
 function sumEventsWithinDays(

@@ -27,13 +27,14 @@ export const openApiDocument = {
           periodTotals: {
             type: "object",
             properties: {
+              hours24: { $ref: "#/components/schemas/PeriodTotals" },
               days7: { $ref: "#/components/schemas/PeriodTotals" },
               days30: { $ref: "#/components/schemas/PeriodTotals" },
               days60: { $ref: "#/components/schemas/PeriodTotals" },
               days90: { $ref: "#/components/schemas/PeriodTotals" },
               days365: { $ref: "#/components/schemas/PeriodTotals" }
             },
-            required: ["days7", "days30", "days60", "days90", "days365"]
+            required: ["hours24", "days7", "days30", "days60", "days90", "days365"]
           },
           recentEspressos: {
             type: "array",

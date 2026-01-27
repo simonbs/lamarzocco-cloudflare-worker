@@ -76,6 +76,8 @@ describe("fetchStatsForMachine", () => {
     const result = await fetchStatsForMachine(env, key, "SERIAL")
 
     expect(result.totals).toEqual({ coffees: 10, flushes: 3 })
+    expect((result.periodTotals as Record<string, { coffees: number; flushes: number }>).hours24)
+      .toEqual({ coffees: 2, flushes: 1 })
     expect((result.periodTotals as Record<string, { coffees: number; flushes: number }>).days7)
       .toEqual({ coffees: 2, flushes: 1 })
     expect((result.periodTotals as Record<string, { coffees: number; flushes: number }>).days30)

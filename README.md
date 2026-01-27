@@ -15,7 +15,7 @@ A Cloudflare Worker (TypeScript) that logs into the La Marzocco cloud API, cache
 - Total coffees and total flushes (all‑time)
 - Recent espresso stats (latest 15: timestamp, extraction seconds, mass)
 - Last backflush timestamp (most recent cleaning start time, if available)
-- Period totals for coffees and flushes: 7, 30, 60, 90, and 365 days
+- Period totals for coffees and flushes: past 24 hours plus 7, 30, 60, 90, and 365 days
 
 `GET /status` returns JSON with:
 - Machine status
