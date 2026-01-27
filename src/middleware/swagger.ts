@@ -1,10 +1,10 @@
 import type { MiddlewareHandler } from "hono"
 import { isSwaggerEnabled } from "../config/env"
-import { jsonResponse } from "../utils/http"
+import { errorResponse } from "../utils/http"
 
 export const requireSwaggerEnabled: MiddlewareHandler = async (context, next) => {
   if (!isSwaggerEnabled(context.env)) {
-    return jsonResponse(context, 404, { error: "Not found" })
+    return errorResponse(context, 404, "Not found", "Swagger endpoints are disabled.")
   }
 
   return next()

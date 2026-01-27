@@ -15,6 +15,19 @@ export function jsonResponse(
   return response
 }
 
+export function errorResponse(
+  context: AppContext,
+  status: number,
+  error: string,
+  description?: string
+): Response {
+  const payload: Record<string, unknown> = { error, status }
+  if (description) {
+    payload.description = description
+  }
+  return jsonResponse(context, status, payload)
+}
+
 export function withCors(response: Response): Response {
   applyCorsHeaders(response.headers)
   return response

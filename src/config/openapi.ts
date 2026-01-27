@@ -92,7 +92,9 @@ export const openApiDocument = {
         type: "object",
         required: ["error"],
         properties: {
-          error: { type: "string" }
+          error: { type: "string" },
+          description: { type: "string" },
+          status: { type: "integer" }
         }
       }
     }
