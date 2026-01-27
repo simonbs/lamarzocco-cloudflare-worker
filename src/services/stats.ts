@@ -6,6 +6,7 @@ import { createDatePartsExtractor, dateOrdinal } from "./dates"
 
 const PERIOD_WINDOWS = [7, 30, 60, 90, 365]
 const DAY_MS = 86_400_000
+const BACKFLUSH_WIDGET_CODE = "CMBackFlush"
 
 export async function fetchStatsForMachine(
   env: Env,
@@ -16,7 +17,7 @@ export async function fetchStatsForMachine(
   const lastCoffeeDays = Math.max(getLastCoffeeDays(env), 15)
   const trendDays = 365
 
-  const [counterRaw, trendRaw, lastCoffeeRaw] = await Promise.all([
+  const [counterRaw, trendRaw, lastCoffeeRaw, dashboardRaw] = await Promise.all([
     apiGet(env, key, `/things/${serialNumber}/stats/COFFEE_AND_FLUSH_COUNTER/1`),
     apiGet(
       env,
@@ -25,12 +26,14 @@ export async function fetchStatsForMachine(
         timezone
       )}`
     ),
-    apiGet(env, key, `/things/${serialNumber}/stats/LAST_COFFEE/1?days=${lastCoffeeDays}`)
+    apiGet(env, key, `/things/${serialNumber}/stats/LAST_COFFEE/1?days=${lastCoffeeDays}`),
+    apiGet(env, key, `/things/${serialNumber}/dashboard`)
   ])
 
   const counterOutput = (counterRaw as { output?: Record<string, unknown> }).output ?? counterRaw
   const trendOutput = (trendRaw as { output?: Record<string, unknown> }).output ?? trendRaw
   const lastCoffeeOutput = (lastCoffeeRaw as { output?: Record<string, unknown> }).output ?? lastCoffeeRaw
+  const dashboardOutput = (dashboardRaw as { output?: Record<string, unknown> }).output ?? dashboardRaw
 
   const coffeeTotal = numberOrNull((counterOutput as Record<string, unknown>).totalCoffee)
   const flushTotal = numberOrNull((counterOutput as Record<string, unknown>).totalFlush)
@@ -41,6 +44,8 @@ export async function fetchStatsForMachine(
   const periodTotals = buildPeriodTotals(coffees, flushes, nowParts, dateParts)
 
   const recentEspressos = extractRecentEspressos(lastCoffeeOutput, 15)
+  const backflushWidget = findWidgetOutput(dashboardOutput, BACKFLUSH_WIDGET_CODE)
+  const lastBackflush = extractLastBackflush(backflushWidget)
 
   const notes: string[] = []
   if (flushes.length === 0) {
@@ -48,6 +53,11 @@ export async function fetchStatsForMachine(
   }
   if (recentEspressos.length === 0) {
     notes.push("Recent espresso list is empty; ensure the API provides last coffee data.")
+  }
+  if (!backflushWidget) {
+    notes.push("Backflush widget not available in the dashboard response; ensure CMBackFlush is enabled.")
+  } else if (!lastBackflush) {
+    notes.push("Backflush widget present but lastCleaningStartTime is missing.")
   }
 
   return {
@@ -57,6 +67,7 @@ export async function fetchStatsForMachine(
     },
     periodTotals,
     recentEspressos,
+    lastBackflush,
     notes: notes.length > 0 ? notes : undefined
   }
 }
@@ -72,6 +83,34 @@ function parseNumber(value: unknown): number | null {
   if (typeof value === "string") {
     const parsed = Number.parseFloat(value)
     return Number.isFinite(parsed) ? parsed : null
+  }
+  return null
+}
+
+function parseTimestampMs(value: unknown): number | null {
+  const numeric = parseNumber(value)
+  if (numeric !== null) {
+    return numeric < 1_000_000_000_000 ? numeric * 1000 : numeric
+  }
+  if (typeof value === "string") {
+    const parsed = Date.parse(value)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+  return null
+}
+
+function findWidgetOutput(payload: unknown, code: string): Record<string, unknown> | null {
+  if (!payload || typeof payload !== "object") return null
+  const record = payload as Record<string, unknown>
+  const widgets = record.widgets ?? record.selectedWidgets
+  if (!Array.isArray(widgets)) return null
+  for (const widget of widgets) {
+    if (!widget || typeof widget !== "object") continue
+    const widgetRecord = widget as Record<string, unknown>
+    if (widgetRecord.code !== code) continue
+    const output = widgetRecord.output
+    if (!output || typeof output !== "object") return null
+    return output as Record<string, unknown>
   }
   return null
 }
@@ -180,6 +219,18 @@ function extractRecentEspressos(output: unknown, limit: number): RecentEspresso[
   })
 
   return mapped.slice(0, limit)
+}
+
+function extractLastBackflush(widget: Record<string, unknown> | null): string | null {
+  if (!widget) return null
+  const timestampValue =
+    widget.lastCleaningStartTime ??
+    widget.lastCleaningStart ??
+    widget.lastCleaningStartTimeMs ??
+    widget.last_cleaning_start_time
+  const timestampMs = parseTimestampMs(timestampValue)
+  if (timestampMs === null) return null
+  return new Date(timestampMs).toISOString()
 }
 
 function isRecentEspresso(value: RecentEspresso | null): value is RecentEspresso {

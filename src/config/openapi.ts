@@ -3,7 +3,7 @@ export const openApiDocument = {
   info: {
     title: "La Marzocco Stats API",
     version: "1.0.0",
-    description: "Expose La Marzocco espresso and backflush stats via a Cloudflare Worker."
+    description: "Expose La Marzocco espresso, flush, and backflush stats via a Cloudflare Worker."
   },
   servers: [
     {
@@ -14,7 +14,7 @@ export const openApiDocument = {
     schemas: {
       StatsResponse: {
         type: "object",
-        required: ["totals", "periodTotals", "recentEspressos"],
+        required: ["totals", "periodTotals", "recentEspressos", "lastBackflush"],
         properties: {
           totals: {
             type: "object",
@@ -38,6 +38,10 @@ export const openApiDocument = {
           recentEspressos: {
             type: "array",
             items: { $ref: "#/components/schemas/RecentEspresso" }
+          },
+          lastBackflush: {
+            type: ["string", "null"],
+            format: "date-time"
           },
           notes: {
             type: ["array", "null"],
@@ -95,7 +99,7 @@ export const openApiDocument = {
   paths: {
     "/stats": {
       get: {
-        summary: "Fetch espresso/backflush stats",
+        summary: "Fetch espresso/flush/backflush stats",
         responses: {
           "200": {
             description: "Stats payload",

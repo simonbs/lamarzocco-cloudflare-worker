@@ -1,6 +1,6 @@
 # lamarzocco Cloudflare Worker
 
-A Cloudflare Worker (TypeScript) that logs into the La Marzocco cloud API, caches tokens in KV, and exposes espresso/backflush stats.
+A Cloudflare Worker (TypeScript) that logs into the La Marzocco cloud API, caches tokens in KV, and exposes espresso/flush/backflush stats.
 
 ## Endpoints
 
@@ -14,6 +14,7 @@ A Cloudflare Worker (TypeScript) that logs into the La Marzocco cloud API, cache
 `GET /stats` returns JSON with:
 - Total coffees and total flushes (all‑time)
 - Recent espresso stats (latest 15: timestamp, extraction seconds, mass)
+- Last backflush timestamp (most recent cleaning start time, if available)
 - Period totals for coffees and flushes: 7, 30, 60, 90, and 365 days
 
 `GET /status` returns JSON with:
@@ -95,7 +96,7 @@ npm run deploy
 ## Notes
 
 - The worker caches the installation key material and auth tokens in KV.
-- “Backflush” values are based on the API’s flush counters/trend data; if the API doesn’t provide flush events, related fields will be `null` or `0`.
+- Backflush timestamp comes from the dashboard’s `CMBackFlush.lastCleaningStartTime` field; if it’s missing, `lastBackflush` will be `null`.
 - Timestamps are returned in ISO‑8601 (UTC).
 - `/docs` and `/openapi.json` are only exposed when `ENABLE_SWAGGER=true`.
 - Machine status values: `StandBy`, `PoweredOn`, `Brewing`, `Off`.
