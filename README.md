@@ -6,7 +6,7 @@
 <hr />
 
 <div align="center">
-  <a href="#-deploy">☁️ Deploy</a>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#%EF%B8%8F-deploy">☁️ Deploy</a>&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="#-getting-started">🚀 Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="#-api">🧭 API</a>
 </div>
