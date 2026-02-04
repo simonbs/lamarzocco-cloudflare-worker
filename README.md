@@ -31,7 +31,6 @@ npm install
 
 ```sh
 wrangler kv namespace create lamarzocco
-wrangler kv namespace create lamarzocco --preview
 ```
 
 3. Create local config files (to avoid modifying tracked files).
@@ -41,7 +40,7 @@ cp .dev.vars.example .dev.vars
 cp wrangler.toml wrangler.local.toml
 ```
 
-4. Update `wrangler.local.toml` with your KV namespace IDs (`kv_namespaces[0].id` and `preview_id`).
+4. Update `wrangler.local.toml` with your KV namespace ID.
 
 5. Set at least these local values in `.dev.vars`: `LM_EMAIL` and `LM_PASSWORD`.
 
