@@ -1,9 +1,9 @@
 <div align="center">
-  <h1><strong>lamarzocco</strong></h1>
+  <h1><strong>lamarzocco-cloudflare-worker</strong></h1>
   <p>Cloudflare Worker for La Marzocco machine stats and status.</p>
 
   <p>
-    <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/simonbs/lamarzocco">
+    <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/simonbs/lamarzocco-cloudflare-worker">
       <img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare" />
     </a>
   </p>
@@ -23,7 +23,7 @@
 
 One-click deploy with Cloudflare:
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/simonbs/lamarzocco)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/simonbs/lamarzocco-cloudflare-worker)
 
 ## 🚀 Getting Started
 
