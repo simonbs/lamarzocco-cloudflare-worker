@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { ensureClientRegistered, loadInstallationKey } from "../../src/services/installation"
 import type { Env } from "../../src/config/env"
 import type { InstallationKeyData } from "../../src/services/types"
-import { base64ToBytes, bytesToBase64, deriveSecretBytes, generateRequestProof, sha256Bytes } from "../../src/services/crypto"
+import { base64ToBytes, bytesToBase64, generateRequestProof, sha256Bytes } from "../../src/services/crypto"
 
 vi.mock("../../src/services/crypto", () => ({
   base64ToBytes: vi.fn(() => new Uint8Array([1, 2, 3])),

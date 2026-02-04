@@ -3,6 +3,31 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "cloudflare": {
+    "bindings": {
+      "KV": {
+        "description": "KV namespace used to cache installation keys and auth tokens."
+      },
+      "LM_EMAIL": {
+        "description": "La Marzocco app email address."
+      },
+      "LM_PASSWORD": {
+        "description": "La Marzocco app password."
+      },
+      "LM_MACHINE_ID": {
+        "description": "Optional machine serial number (required for accounts with multiple machines)."
+      },
+      "LM_TIMEZONE": {
+        "description": "Optional IANA timezone for period windows (default: UTC)."
+      },
+      "LM_LAST_COFFEE_DAYS": {
+        "description": "Optional lookback days for recent espressos (default: 365)."
+      },
+      "ENABLE_SWAGGER": {
+        "description": "Optional flag (`true`) to expose `/openapi.json` and `/docs`."
+      }
+    }
+  },
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",

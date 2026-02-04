@@ -1,0 +1,7 @@
+LM_EMAIL=you@example.com
+LM_PASSWORD=replace-with-your-la-marzocco-app-password
+
+# Optional:
+# LM_MACHINE_ID=MI000000
+# LM_INSTALLATION_ID=00000000-0000-0000-0000-000000000000
+# LM_API_BASE=https://lion.lamarzocco.io/api/customer-app

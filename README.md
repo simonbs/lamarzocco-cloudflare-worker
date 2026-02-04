@@ -1,102 +1,103 @@
-# lamarzocco Cloudflare Worker
+<div align="center">
+  <h1><strong>lamarzocco</strong></h1>
+  <p>Cloudflare Worker for La Marzocco machine stats and status.</p>
 
-A Cloudflare Worker (TypeScript) that logs into the La Marzocco cloud API, caches tokens in KV, and exposes espresso/flush/backflush stats.
+  <p>
+    <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/simonbs/lamarzocco">
+      <img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare" />
+    </a>
+  </p>
+</div>
 
-## Endpoints
+<hr />
 
-- `GET /stats` — stats payload
-- `GET /status` — machine status dashboard widgets
-- `GET /openapi.json` — OpenAPI 3.0 document (when enabled)
-- `GET /docs` — Swagger UI (when enabled)
+<div align="center">
+  <a href="#-deploy">☁️ Deploy</a>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#-getting-started">🚀 Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#-api">🧭 API</a>
+</div>
 
-## What it returns
+<hr />
 
-`GET /stats` returns JSON with:
-- Total coffees and total flushes (all‑time)
-- Recent espresso stats (latest 15: timestamp, extraction seconds, mass)
-- Last backflush timestamp (most recent cleaning start time, if available)
-- Period totals for coffees and flushes: past 24 hours plus 7, 30, 60, 90, and 365 days
+## ☁️ Deploy
 
-`GET /status` returns JSON with:
-- Machine status
-- Brew‑by‑weight doses (dose1/dose2)
-- Scale battery + connected status (if a scale is linked)
-- Machine image URL (from `coffeeStation.coffeeMachine.imageUrlDetail`)
+One-click deploy with Cloudflare:
 
-Counts are derived strictly from La Marzocco API responses. No local database is used.
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/simonbs/lamarzocco)
 
-## Architecture (services)
+## 🚀 Getting Started
 
-The worker is split into focused service modules:
-- `src/services/lamarzocco.ts` orchestrates the flow.
-- `src/services/installation.ts` manages installation keys + client registration.
-- `src/services/auth.ts` handles sign‑in/refresh token lifecycle.
-- `src/services/api.ts` wraps signed API calls and 401 retry.
-- `src/services/machines.ts` resolves the target machine serial number.
-- `src/services/stats.ts` aggregates counts and timestamps.
-- `src/services/crypto.ts` handles request proof + signatures.
-- `src/services/dates.ts` normalizes calendar windows.
-- `src/services/types.ts` contains shared types.
+1. Install dependencies.
 
-## Request flow
-
-```
-HTTP GET /stats
-  -> routes/stats.ts
-    -> services/lamarzocco.fetchStats
-      -> config/env.assertRequiredEnv
-      -> services/installation.loadInstallationKey (KV cache)
-      -> services/installation.ensureClientRegistered
-      -> services/machines.resolveSerialNumber
-      -> services/stats.fetchStatsForMachine
-        -> services/api.apiGet (signed headers, retry on 401)
-          -> services/auth.getAccessToken
-            -> services/auth.signIn or refreshToken (KV cache)
+```sh
+npm install
 ```
 
-## Setup
+2. Create KV namespaces.
 
-1. Create a KV namespace (wrangler v4+):
-
-```bash
+```sh
 wrangler kv namespace create lamarzocco
 wrangler kv namespace create lamarzocco --preview
 ```
 
-2. Update `wrangler.toml` with the KV ids (binding is `KV`; you can reuse the same id for `preview_id` during development).
+3. Create local config files (to avoid modifying tracked files).
 
-3. Set environment variables:
+```sh
+cp .dev.vars.example .dev.vars
+cp wrangler.toml wrangler.local.toml
+```
 
-```bash
+4. Update `wrangler.local.toml` with your KV namespace IDs (`kv_namespaces[0].id` and `preview_id`).
+
+5. Set at least these local values in `.dev.vars`: `LM_EMAIL` and `LM_PASSWORD`.
+
+6. Start local development.
+
+```sh
+wrangler dev --config wrangler.local.toml
+```
+
+7. Set production secrets and deploy.
+
+```sh
+wrangler secret put LM_EMAIL
 wrangler secret put LM_PASSWORD
+wrangler deploy --config wrangler.local.toml
 ```
 
-You can set `LM_EMAIL` (and optional values) in `wrangler.toml` `[vars]`, or as secrets if you prefer.
+## 🧭 API
 
-Required:
-- `LM_EMAIL` – La Marzocco app email
-- `LM_PASSWORD` – La Marzocco app password
+| Method | Path | Description | Availability |
+| --- | --- | --- | --- |
+| `GET` | `/stats` | Aggregated coffee/flush/backflush stats, recent espressos, and period totals. | Always |
+| `GET` | `/status` | Machine status widgets (state, doses, scale, image URL). | Always |
+| `GET` | `/openapi.json` | OpenAPI 3.0 schema for this worker. | `ENABLE_SWAGGER=true` |
+| `GET` | `/docs` | Swagger UI powered by `/openapi.json`. | `ENABLE_SWAGGER=true` |
 
-Optional:
-- `ENABLE_SWAGGER` – `true` to expose `/openapi.json` and `/docs` (default `false`)
-- `LM_MACHINE_ID` – serial number (optional; if you have exactly one machine, it will be auto-selected; if you have multiple machines, requests will fail until this is set)
-- `LM_TIMEZONE` – IANA timezone (default `UTC`)
-- `LM_LAST_COFFEE_DAYS` – days to query for last espresso list (default `365`)
-- `LM_INSTALLATION_ID` – fixed installation id; if omitted, one is generated and stored in KV
-- `LM_API_BASE` – override API base (default `https://lion.lamarzocco.io/api/customer-app`)
+Key response data:
+- `/stats`: totals, recent espressos, last backflush timestamp, and 24h/7d/30d/60d/90d/365d totals.
+- `/status`: machine state, brew-by-weight doses, scale connectivity/battery, and machine image URL.
 
-## Develop & deploy
+## ⚙️ Configuration
 
-```bash
-npm install
-npm run dev
-npm run deploy
-```
+| Name | Type | Required | Default | Description |
+| --- | --- | --- | --- | --- |
+| `KV` | Binding (KV namespace) | Yes | None | Stores installation keys and auth token cache. |
+| `LM_EMAIL` | Secret / env var | Yes | None | La Marzocco app email used for sign-in. |
+| `LM_PASSWORD` | Secret / env var | Yes | None | La Marzocco app password used for sign-in. |
+| `LM_MACHINE_ID` | Env var | No | Auto-select when possible | Machine serial number. Set this if your account has multiple machines. |
+| `LM_TIMEZONE` | Env var | No | `UTC` | IANA timezone used when calculating period windows. |
+| `LM_LAST_COFFEE_DAYS` | Env var | No | `365` | Number of days to fetch in the recent espresso list query. |
+| `LM_INSTALLATION_ID` | Secret / env var | No | Auto-generated | Fixed installation ID. If unset, one is generated and cached in KV. |
+| `LM_API_BASE` | Env var | No | `https://lion.lamarzocco.io/api/customer-app` | Override API base URL. |
+| `ENABLE_SWAGGER` | Env var | No | `false` | Set to `true` to expose `/docs` and `/openapi.json`. |
 
-## Notes
+## 🛠️ Development
 
-- The worker caches the installation key material and auth tokens in KV.
-- Backflush timestamp comes from the dashboard’s `CMBackFlush.lastCleaningStartTime` field; if it’s missing, `lastBackflush` will be `null`.
-- Timestamps are returned in ISO‑8601 (UTC).
-- `/docs` and `/openapi.json` are only exposed when `ENABLE_SWAGGER=true`.
-- Machine status values: `StandBy`, `PoweredOn`, `Brewing`, `Off`.
+| Command | Description |
+| --- | --- |
+| `npm run lint` | Run ESLint checks. |
+| `npm run typecheck` | Run TypeScript type checking. |
+| `npm test` | Run test suite. |
+| `npm run deploy` | Deploy using tracked Wrangler config. |
+| `wrangler deploy --config wrangler.local.toml` | Deploy with local, untracked config. |

@@ -7,7 +7,10 @@ pnpm-debug.log*
 .DS_Store
 
 .wrangler
+wrangler.local.toml
 .dev.vars
+.dev.vars.*
+!.dev.vars.example
 .env
 .env.*
 
