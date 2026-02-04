@@ -1,0 +1,18 @@
+name = "lamarzocco"
+main = "src/index.ts"
+compatibility_date = "2026-01-26"
+
+# Deploy to Cloudflare can auto-provision this namespace and rewrite the ids.
+kv_namespaces = [
+  { binding = "KV", id = "YOUR_KV_NAMESPACE_ID" }
+]
+
+[vars]
+LM_TIMEZONE = "UTC"
+LM_LAST_COFFEE_DAYS = "365"
+ENABLE_SWAGGER = "false"
+
+[observability]
+[observability.logs]
+enabled = true
+invocation_logs = true
