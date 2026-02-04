@@ -1,12 +1,6 @@
 <div align="center">
-  <h1><strong>lamarzocco-cloudflare-worker</strong></h1>
-  <p>Cloudflare Worker for La Marzocco machine stats and status.</p>
-
-  <p>
-    <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/simonbs/lamarzocco-cloudflare-worker">
-      <img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare" />
-    </a>
-  </p>
+  <h1><strong>lamarzocco-cloudflare-worker ☕️</strong></h1>
+  <p>Cloudflare Worker exposing a REST API for fetching status and stats from a La Marzocco machine.</p>
 </div>
 
 <hr />
